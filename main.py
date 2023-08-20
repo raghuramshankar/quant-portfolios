@@ -27,21 +27,22 @@ if len(packnames_to_install) > 0:
 
 
 # get ticker data
-def get_t(tickers, start, end=dt.datetime.now()):
-    t = pdr.get_data_yahoo(tickers, start, end)["Close"]
-    return t
-
-
-if __name__ == "__main__":
-    # get ticker data
-    tickers = ["VOO", "QQQ", "RUT", "AAPL", "GOOGL", "TSLA", "NVDA", "MCD", "CVX"]
-    end = dt.datetime.now()
-    start = end - dt.timedelta(days=365 * 10)
-    t_prices = get_t(tickers=tickers, start=start, end=end)
+def get_t(tickers, start, end):
+    t_prices = pdr.get_data_yahoo(tickers, start, end)["Close"]
     t_returns = t_prices.resample("D").ffill().pct_change().dropna(axis=0)
+    return (t_prices, t_returns)
+
+
+# fit mvt to get mean and covar of tickers
+def fit_mvt(
+    tickers,
+    start=dt.datetime.now() - dt.timedelta(days=365 * 10),
+    end=dt.datetime.now(),
+):
+    t_prices, t_returns = get_t(tickers=tickers, start=start, end=end)
 
     # convert t to r dataframe
-    data = pandas2ri.py2rpy_pandasdataframe(t_prices)
+    data = pandas2ri.py2rpy_pandasdataframe(t_returns)
 
     # import r package
     fitHeavyTail = rpackages.importr("fitHeavyTail")
@@ -55,8 +56,17 @@ if __name__ == "__main__":
     for idx, key in enumerate(result_names):
         results[key] = results_r[idx]
 
+    return results
+
+
+if __name__ == "__main__":
+    # get ticker data
+    tickers = ["XRSG.L", "SPXP.L", "IWDG.L", "G500.L", "SWLD.L", "EQGB.L", "SGLN.L"]
+
+    results = fit_mvt(tickers)
+
     # plot
-    fig, ax = plt.subplots(figsize=(20, 20))
+    fig, ax = plt.subplots(figsize=(10, 10))
     sns.heatmap(
         pd.DataFrame(results["scatter"], index=tickers, columns=tickers),
         annot=True,
