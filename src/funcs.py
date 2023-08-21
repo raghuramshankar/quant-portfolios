@@ -31,6 +31,7 @@ def get_t(
     end=dt.datetime.now(),
 ):
     """get ticker data"""
+    tickers = sorted(tickers)
     t_names = [
         ticker + ": " + yf.Ticker(ticker).info["shortName"] for ticker in tickers
     ]

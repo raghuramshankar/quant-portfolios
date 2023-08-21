@@ -1,1 +1,1 @@
-# risk-parity-portfolios
+# Risk Parity Portfolios
