@@ -1,5 +1,5 @@
 # Risk Parity Portfolios
-- Uses [Prof. Daniel.P.Palomar](https://github.com/dppalomar) and the [Convex Research](https://github.com/convexfi) group's quantitative tools to model stocks, construct and backtest risk parity/budgeting portfolios.
+- Uses [Prof. Daniel P. Palomar](https://github.com/dppalomar) and the [Convex Research](https://github.com/convexfi) group's quantitative tools to model stocks, construct and backtest risk parity/budgeting portfolios.
 
 ## Tasks/Tools:
 - Selects list of tickers to model and construct a portfolio using factor based models (TBD)
