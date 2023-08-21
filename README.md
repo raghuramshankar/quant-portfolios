@@ -9,6 +9,6 @@
 
 ## Requirements:
 - Python
-- [Rpy2](https://github.com/rpy2/rpy2)
+- [rpy2](https://github.com/rpy2/rpy2)
 - R compiler
 - requirements.txt
