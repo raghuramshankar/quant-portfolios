@@ -18,7 +18,7 @@ if __name__ == "__main__":
     ticker_index = ["RSP"]
 
     # get ticker data
-    start = dt.datetime(year=2020, month=4, day=1)
+    start = dt.datetime(year=2020, month=1, day=1)
     t_portfolio_names, _, t_portfolio_returns = get_t(
         tickers=tickers_portfolio, start=start
     )
