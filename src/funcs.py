@@ -2,6 +2,7 @@
 import rpy2.robjects.packages as rpackages
 from rpy2.robjects.vectors import StrVector
 from rpy2.robjects import pandas2ri
+import rpy2.robjects as robjects
 
 pandas2ri.activate()
 
@@ -9,8 +10,6 @@ pandas2ri.activate()
 import yfinance as yf
 from pandas_datareader import data as pdr
 import riskparityportfolio as rp
-import numpy as np
-import pandas as pd
 import datetime as dt
 import matplotlib.pyplot as plt
 
@@ -19,7 +18,7 @@ utils = rpackages.importr("utils")
 utils.chooseCRANmirror(ind=1)
 
 # install r packages if not already installed
-packageNames = ("fitHeavyTail", "riskParityPortfolio")
+packageNames = ("fitHeavyTail", "sparseIndexTracking")
 packnames_to_install = [x for x in packageNames if not rpackages.isinstalled(x)]
 if len(packnames_to_install) > 0:
     utils.install_packages(StrVector(packnames_to_install))
@@ -27,7 +26,7 @@ if len(packnames_to_install) > 0:
 
 def get_t(
     tickers,
-    start=dt.datetime.now() - dt.timedelta(days=10 * 365),
+    start=dt.datetime.now() - dt.timedelta(days=365 * 1),
     end=dt.datetime.now(),
 ):
     """get ticker data"""
@@ -69,3 +68,15 @@ def plot_portfolio(weights):
     """plot portfolio"""
     _, ax = plt.subplots(figsize=(5, 5))
     weights.plot.pie(autopct="%1.1f%%")
+
+
+def design_sparse(X_train, r_train, l=1e-7, u=0.5, measure="ete"):
+    # convert to r matrix
+    X_train = robjects.r["as.matrix"](X_train)
+    r_train = robjects.r["as.matrix"](r_train)
+
+    # import r package
+    spIndexTrack = rpackages.importr("sparseIndexTracking")
+
+    # design sparse portfolio
+    return spIndexTrack.spIndexTrack(X_train, r_train, l, u, measure)

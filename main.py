@@ -9,8 +9,11 @@ if '__ipython__':
 
 if __name__ == "__main__":
     # choose tickers
-    tickers = ["CSH2.L", "XRSG.L", "SPXP.L", "IWDG.L", "G500.L", "SWLD.L", "EQGB.L", "SGLN.L"]
-    # tickers = ["CSH2.L", "G500.L", "SGLN.L"]
+    # tickers = [ "XRSG.L", "SPXP.L", "IWDG.L", "G500.L", "SWLD.L", "EQGB.L", "SGLN.L"]
+    tickers = [ "XRSG.L", "SPXP.L", "IWDG.L", "G500.L", "SWLD.L", "EQGB.L"]
+    # tickers = [ "SWLD.L", "RSP"]
+    # tickers = ["AAPL", "TSLA", "NVDA", "XRSG.L"]
+    # tickers = ["CSH2.L", "SPXP.L", "SGLN.L"]
     # tickers = ["CSH2.L", "RSP"]
 
     # get ticker data
@@ -26,10 +29,12 @@ if __name__ == "__main__":
     print("Risk Parity porfolio:\n", weights.to_string())
 
     # construct risk budgeting portfolio and plot
-    risk_1 = 1e-3
+    risk_1 = 0.5
+    sort_indices = np.argsort(tickers)
     b = np.vstack(
         [risk_1, np.ones((len(tickers) - 1, 1)) * (1 - risk_1) / (len(tickers) - 1)]
     )
+    b = b[sort_indices]
     weights = pd.Series(construct_rbp(results["cov"], b), index=t_names).T
     plot_portfolio(weights=weights)
     print("Risk Budgeting porfolio:\n", weights.to_string())
