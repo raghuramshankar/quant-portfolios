@@ -7,6 +7,7 @@ import rpy2.robjects as robjects
 pandas2ri.activate()
 
 # python packages
+import numpy as np
 import yfinance as yf
 from pandas_datareader import data as pdr
 import riskparityportfolio as rp
@@ -36,6 +37,7 @@ def get_t(
     ]
     t_prices = pdr.get_data_yahoo(tickers, start, end)["Close"]
     t_returns = t_prices.resample("D").ffill().pct_change().dropna(axis=0)
+
     return (t_names, t_prices, t_returns)
 
 
