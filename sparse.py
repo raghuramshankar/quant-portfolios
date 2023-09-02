@@ -4,18 +4,24 @@ import pandas as pd
 import datetime as dt
 from src.funcs import get_t, design_sparse
 
-# if '__ipython__':
-#     %load_ext autoreload
-#     %autoreload 2
-
 if __name__ == "__main__":
     # choose tickers
-    tickers_portfolio = ["LGUG.L", "XRSG.L", "EQGB.L", "SGLN.L", "TRSG.L"]
+    tickers_portfolio = [
+        "SPXP.L",
+        "XRSG.L",
+        "CNX1.L",
+        "SGLN.L",
+        "EQQQ.L",
+        "FRIN.L",
+        "FTAL.L",
+    ]
     ticker_index = ["RSP"]
 
     # get ticker data
-    start = dt.datetime.now() - dt.timedelta(days=365 * 4)
-    _, _, t_portfolio_returns = get_t(tickers=tickers_portfolio, start=start)
+    start = dt.datetime(year=2020, month=4, day=1)
+    t_portfolio_names, _, t_portfolio_returns = get_t(
+        tickers=tickers_portfolio, start=start
+    )
     _, _, t_index_returns = get_t(tickers=ticker_index, start=start)
 
     # ensure the same index
@@ -26,7 +32,7 @@ if __name__ == "__main__":
 
     # design sparse portfolio
     w_sparse = design_sparse(
-        t_portfolio_returns, t_index_returns, l=1e-10, u=0.9, measure="ete"
+        t_portfolio_returns, t_index_returns, l=1e-5, u=0.9, measure="ete"
     )
 
     # get dataframe with cumulative returns
@@ -46,7 +52,7 @@ if __name__ == "__main__":
     sparse_portfolio = pd.DataFrame(sparse_portfolio, index=t_portfolio_returns.index)
 
     # plot sparse index portfolio vs index returns
-    print(pd.DataFrame(w_sparse, index=tickers_portfolio))
+    print(pd.DataFrame(w_sparse, index=t_portfolio_names).to_string())
     print(
         "CRMSE Tracking error: ",
         np.sqrt(
@@ -58,5 +64,5 @@ if __name__ == "__main__":
             )
         ),
     )
-    sparse_portfolio.plot.line()
-    (1 + t_portfolio_returns).cumprod().plot.line()
+    sparse_portfolio.plot.line(figsize=(12, 6))
+    (1 + t_portfolio_returns).cumprod().plot.line(figsize=(12, 6))

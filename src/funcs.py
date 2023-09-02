@@ -12,7 +12,6 @@ import yfinance as yf
 from pandas_datareader import data as pdr
 import riskparityportfolio as rp
 import datetime as dt
-import matplotlib.pyplot as plt
 
 yf.pdr_override()
 utils = rpackages.importr("utils")
@@ -32,9 +31,7 @@ def get_t(
 ):
     """get ticker data"""
     tickers = sorted(tickers)
-    t_names = [
-        ticker + ": " + yf.Ticker(ticker).info["shortName"] for ticker in tickers
-    ]
+    t_names = [ticker + ": " + yf.Ticker(ticker).info["longName"] for ticker in tickers]
     t_prices = pdr.get_data_yahoo(tickers, start, end)["Close"]
     t_returns = t_prices.resample("D").ffill().pct_change().dropna(axis=0)
 
@@ -64,12 +61,6 @@ def fit_mvt(t_returns):
 def construct_rbp(sigma, b):
     """construct risk parity/budgeting portfolio"""
     return rp.vanilla.design(sigma, b).T
-
-
-def plot_portfolio(weights):
-    """plot portfolio"""
-    _, ax = plt.subplots(figsize=(5, 5))
-    weights.plot.pie(autopct="%1.1f%%")
 
 
 def design_sparse(X_train, r_train, l=1e-7, u=0.5, measure="ete"):
