@@ -9,11 +9,11 @@ if __name__ == "__main__":
     tickers_portfolio = [
         "SPXP.L",
         "XRSG.L",
-        "CNX1.L",
         "SGLN.L",
         "EQQQ.L",
         "FRIN.L",
         "FTAL.L",
+        "CEA1.L",
     ]
     ticker_index = ["RSP"]
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     # design sparse portfolio
     w_sparse = design_sparse(
-        t_portfolio_returns, t_index_returns, l=1e-5, u=0.9, measure="ete"
+        t_portfolio_returns, t_index_returns, l=1e-5, u=0.9, measure="dr"
     )
 
     # get dataframe with cumulative returns

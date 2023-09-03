@@ -26,7 +26,7 @@ if len(packnames_to_install) > 0:
 
 def get_t(
     tickers,
-    start=dt.datetime.now() - dt.timedelta(days=365 * 1),
+    start=dt.datetime.now() - dt.timedelta(days=365 * 10),
     end=dt.datetime.now(),
 ):
     """get ticker data"""
@@ -64,6 +64,7 @@ def construct_rbp(sigma, b):
 
 
 def design_sparse(X_train, r_train, l=1e-7, u=0.5, measure="ete"):
+    """design sparse portfolio to track index returns"""
     # convert to r matrix
     X_train = robjects.r["as.matrix"](X_train)
     r_train = robjects.r["as.matrix"](r_train)
