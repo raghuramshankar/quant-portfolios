@@ -32,7 +32,22 @@ if __name__ == "__main__":
     b = b[sort_indices]
     weights_budget = pd.Series(construct_rbp(results["cov"], b), index=t_names).T
 
-    # plot
+    # plot weights
     print("Risk Budgeting porfolio:\n", weights_budget.to_string())
     _, ax = plt.subplots(figsize=(12, 6))
     weights_budget.plot.pie(autopct="%1.1f%%", ax=ax)
+
+    # plot t_returns
+    _, ax = plt.subplots(figsize=(12, 6))
+    pd.DataFrame(
+        (1 + t_returns.to_numpy().transpose()).cumprod().transpose(),
+        index=t_returns.index,
+    ).plot.line(ax=ax)
+
+    # plot backtest
+    _, ax = plt.subplots(figsize=(12, 6))
+    pd.DataFrame(
+        (1 + t_returns.to_numpy() * np.matrix(weights_budget.to_numpy()).transpose())
+        .cumprod()
+        .transpose()
+    ).plot.line(ax=ax)
