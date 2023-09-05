@@ -16,8 +16,10 @@ if __name__ == "__main__":
     num_tickers = 3
     tickers_comb = list(itertools.combinations(tickers_portfolio, num_tickers))
     c = ["ticker" + "_" + str(idx) for idx in range(num_tickers)]
-    c.append("crmse")
+    c = c + ["weight" + "_" + str(idx) for idx in range(num_tickers)]
+    c = c + ["crmse"]
     crmse_df = pd.DataFrame(columns=c)
+
     for comb in tickers_comb:
         try:
             # get ticker data
@@ -33,12 +35,12 @@ if __name__ == "__main__":
 
             # design sparse portfolio
             w_sparse = design_sparse(
-                t_portfolio_returns, t_index_returns, l=1e-5, u=0.9, measure="ete"
+                t_portfolio_returns, t_index_returns, l=1e-9, u=0.5, measure="ete"
             )
 
             # get dataframe with cumulative returns
             sparse_portfolio = dict()
-            sparse_portfolio["sparse_" + ticker_index[0]] = (
+            sparse_portfolio["sparse_" + ticker_index[0] + ":" + str(comb)] = (
                 np.array(
                     (
                         1
@@ -62,11 +64,12 @@ if __name__ == "__main__":
             crmse_d = dict()
             for idx in range(num_tickers):
                 crmse_d["ticker_" + str(idx)] = t_portfolio_names[idx]
+                crmse_d["weight_" + str(idx)] = w_sparse[idx]
 
             crmse_d["crmse"] = np.sqrt(
                 np.sum(
                     np.square(
-                        sparse_portfolio["sparse_" + ticker_index[0]]
+                        sparse_portfolio["sparse_" + ticker_index[0] + ":" + str(comb)]
                         - sparse_portfolio[ticker_index[0]]
                     )
                 )
@@ -77,12 +80,12 @@ if __name__ == "__main__":
                 (crmse_df, pd.DataFrame(crmse_d, index=[0])), ignore_index=True
             )
 
-            # print statistics
-            print(pd.DataFrame(w_sparse, index=t_portfolio_names).to_string())
-
             # plot sparse index portfolio vs index returns
             sparse_portfolio.plot.line(figsize=(12, 6))
 
             plt.show()
         except:
-            print("Skipping %s" % t_portfolio_names)
+            pass
+
+    # print final results
+    print(crmse_df.to_string())
