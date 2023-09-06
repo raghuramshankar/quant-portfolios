@@ -9,7 +9,7 @@ from src.funcs import get_t, design_sparse
 if __name__ == "__main__":
     # choose tickers
     ticker_data = pd.read_json("ticker_data.json")
-    tickers_portfolio = ticker_data.loc[0:6, "tickers"]
+    tickers_portfolio = ticker_data.loc[0:5, "tickers"]
     ticker_index = ["RSP"]
 
     # get all combinations of n tickers
@@ -25,7 +25,8 @@ if __name__ == "__main__":
     t_all_names, _, t_all_returns = get_t(tickers=tickers_portfolio, start=start_test)
     _, _, t_index_returns = get_t(tickers=ticker_index, start=start_test)
 
-    for comb in tickers_comb:
+    for comb_idx, comb in enumerate(tickers_comb):
+        print("Trying combination %d/%d: %s" % (comb_idx + 1, len(tickers_comb), comb))
         # get comb ticker data
         t_portfolio_returns = t_all_returns.loc[:, comb]
         t_portfolio_names, _, _ = get_t(tickers=comb, start=start_test)
@@ -86,8 +87,8 @@ if __name__ == "__main__":
                 # get tracking error dictionary
                 crmse_d = dict()
                 for idx in range(num_tickers):
-                    crmse_d["ticker_" + str(idx)] = t_portfolio_names[idx]
-                    crmse_d["weight_" + str(idx)] = w_sparse[idx]
+                    crmse_d["ticker_" + str(idx + 1)] = t_portfolio_names[idx]
+                    crmse_d["weight_" + str(idx + 1)] = w_sparse[idx]
 
                 crmse_d["crmse"] = crmse
 
