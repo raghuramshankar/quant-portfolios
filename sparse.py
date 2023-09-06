@@ -6,11 +6,16 @@ import itertools
 import matplotlib.pyplot as plt
 from src.funcs import get_t, design_sparse
 
+PLOT = False
+
 
 def sparse(ticker_index):
     # choose tickers
     ticker_data = pd.read_json("ticker_data.json")
-    tickers_portfolio = ticker_data.loc[0:5, "tickers"]
+    tickers_portfolio = ticker_data.loc[:, "tickers"]
+    tickers_portfolio = [
+        ticker for ticker in tickers_portfolio if ticker.startswith("V")
+    ]
 
     # get all combinations of n tickers
     num_tickers = 3
@@ -26,10 +31,9 @@ def sparse(ticker_index):
     _, _, t_index_returns = get_t(tickers=ticker_index, start=start_test)
 
     for comb_idx, comb in enumerate(tickers_comb):
-        print("Trying combination %d/%d: %s" % (comb_idx + 1, len(tickers_comb), comb))
+        print("Combination %d/%d: %s" % (comb_idx + 1, len(tickers_comb), comb))
         # get comb ticker data
         t_portfolio_returns = t_all_returns.loc[:, comb]
-        t_portfolio_names, _, _ = get_t(tickers=comb, start=start_test)
 
         # ensure the same index
         starting_idx = max(t_portfolio_returns.index[0], t_index_returns.index[0])
@@ -38,7 +42,7 @@ def sparse(ticker_index):
         t_portfolio_returns = t_portfolio_returns.loc[starting_idx:ending_idx]
 
         # train only until for some of the data
-        end_train = dt.datetime(year=2021, month=12, day=31)
+        end_train = dt.datetime(year=2022, month=12, day=31)
 
         try:
             # design sparse portfolio
@@ -87,8 +91,8 @@ def sparse(ticker_index):
                 # get tracking error dictionary
                 crmse_d = dict()
                 for idx in range(num_tickers):
-                    crmse_d["ticker_" + str(idx + 1)] = t_portfolio_names[idx]
-                    crmse_d["weight_" + str(idx + 1)] = w_sparse[idx]
+                    crmse_d["ticker_" + str(idx)] = comb[idx]
+                    crmse_d["weight_" + str(idx)] = w_sparse[idx]
 
                 crmse_d["crmse"] = crmse
 
@@ -98,17 +102,23 @@ def sparse(ticker_index):
                 )
 
                 # plot sparse index portfolio vs index returns
-                sparse_portfolio.plot.line(figsize=(20, 6), ylabel="Return")
-                plt.axvline(x=end_train)
+                if PLOT:
+                    sparse_portfolio.plot.line(figsize=(20, 6), ylabel="Return")
+                    plt.axvline(x=end_train)
 
-                plt.show()
+                    plt.show()
         except:
             pass
 
-    # print final results
-    print(crmse_df.to_string())
+    return crmse_df
 
 
 if __name__ == "__main__":
     ticker_index = ["RSP"]
-    sparse(ticker_index=ticker_index)
+    crmse_df = sparse(ticker_index=ticker_index)
+
+    # print final results
+    print(crmse_df.to_string())
+
+    # print the weights with the minimimum crmse
+    print(crmse_df.iloc[crmse_df["crmse"].idxmin(), :].to_string())
