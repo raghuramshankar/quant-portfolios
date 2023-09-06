@@ -9,7 +9,7 @@ from src.funcs import get_t, design_sparse
 if __name__ == "__main__":
     # choose tickers
     ticker_data = pd.read_json("ticker_data.json")
-    tickers_portfolio = ticker_data.loc[:, "tickers"]
+    tickers_portfolio = ticker_data.loc[0:5, "tickers"]
     ticker_index = ["RSP"]
 
     # get all combinations of n tickers
@@ -20,19 +20,22 @@ if __name__ == "__main__":
     c = c + ["crmse"]
     crmse_df = pd.DataFrame(columns=c)
 
+    # get all ticker data
+    start = dt.datetime(year=2020, month=1, day=1)
+    t_all_names, _, t_all_returns = get_t(tickers=tickers_portfolio, start=start)
+    _, _, t_index_returns = get_t(tickers=ticker_index, start=start)
+
     for comb in tickers_comb:
+        # get comb ticker data
+        t_portfolio_returns = t_all_returns.loc[:, comb]
+        t_portfolio_names, _, _ = get_t(tickers=comb, start=start)
+
+        # ensure the same index
+        starting_idx = max(t_portfolio_returns.index[0], t_index_returns.index[0])
+        ending_idx = min(t_portfolio_returns.index[-1], t_index_returns.index[-1])
+        t_index_returns = t_index_returns.loc[starting_idx:ending_idx]
+        t_portfolio_returns = t_portfolio_returns.loc[starting_idx:ending_idx]
         try:
-            # get ticker data
-            start = dt.datetime(year=2020, month=1, day=1)
-            t_portfolio_names, _, t_portfolio_returns = get_t(tickers=comb, start=start)
-            _, _, t_index_returns = get_t(tickers=ticker_index, start=start)
-
-            # ensure the same index
-            starting_idx = max(t_portfolio_returns.index[0], t_index_returns.index[0])
-            ending_idx = min(t_portfolio_returns.index[-1], t_index_returns.index[-1])
-            t_index_returns = t_index_returns.loc[starting_idx:ending_idx]
-            t_portfolio_returns = t_portfolio_returns.loc[starting_idx:ending_idx]
-
             # design sparse portfolio
             w_sparse = design_sparse(
                 t_portfolio_returns, t_index_returns, l=1e-9, u=0.5, measure="ete"
