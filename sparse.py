@@ -6,11 +6,11 @@ import itertools
 import matplotlib.pyplot as plt
 from src.funcs import get_t, design_sparse
 
-if __name__ == "__main__":
+
+def sparse(ticker_index):
     # choose tickers
     ticker_data = pd.read_json("ticker_data.json")
     tickers_portfolio = ticker_data.loc[0:5, "tickers"]
-    ticker_index = ["RSP"]
 
     # get all combinations of n tickers
     num_tickers = 3
@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     # get all ticker data
     start_test = dt.datetime(year=2020, month=1, day=1)
-    t_all_names, _, t_all_returns = get_t(tickers=tickers_portfolio, start=start_test)
+    _, _, t_all_returns = get_t(tickers=tickers_portfolio, start=start_test)
     _, _, t_index_returns = get_t(tickers=ticker_index, start=start_test)
 
     for comb_idx, comb in enumerate(tickers_comb):
@@ -107,3 +107,8 @@ if __name__ == "__main__":
 
     # print final results
     print(crmse_df.to_string())
+
+
+if __name__ == "__main__":
+    ticker_index = ["RSP"]
+    sparse(ticker_index=ticker_index)
