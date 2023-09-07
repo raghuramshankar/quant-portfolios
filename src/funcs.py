@@ -106,7 +106,11 @@ def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=No
 
 
 def build_sparse(
-    ticker_index, tickers_portfolio, t_all_returns, t_index_returns, end_train
+    ticker_index,
+    tickers_portfolio,
+    t_all_returns,
+    t_index_returns,
+    end_train,
 ):
     # get all combinations of n tickers
     num_tickers = 3

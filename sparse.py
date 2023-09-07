@@ -8,12 +8,12 @@ from src.funcs import get_t, backtest_portfolio, build_sparse
 
 if __name__ == "__main__":
     # get ticker names
-    ticker_index = ["RSP"]
+    ticker_index = ["^NSEI"]
     ticker_data = pd.read_json("ticker_data.json")
-    tickers_portfolio = ticker_data.loc[0:5, "tickers"]
-    # tickers_portfolio = [
-    #     ticker for ticker in tickers_portfolio if ticker.startswith("V")
-    # ]
+    tickers_portfolio = ticker_data.loc[0:, "tickers"]
+    tickers_portfolio = [
+        ticker for ticker in tickers_portfolio if ticker.startswith("V")
+    ]
 
     # get all ticker data
     start_test = dt.datetime(year=2020, month=1, day=1)
@@ -32,6 +32,7 @@ if __name__ == "__main__":
         end_train=end_train,
     )
 
+    # %%
     # print and plot results
     if not crmse_df.empty:
         result_df = crmse_df.iloc[crmse_df["crmse"].idxmin(), :]
@@ -50,6 +51,12 @@ if __name__ == "__main__":
 
         # get returns of results again
         returns_results = t_all_returns.loc[:, tickers_results]
+
+        # ensure the same index
+        starting_idx = max(returns_results.index[0], t_index_returns.index[0])
+        ending_idx = min(returns_results.index[-1], t_index_returns.index[-1])
+        t_index_returns = t_index_returns.loc[starting_idx:ending_idx]
+        returns_results = returns_results.loc[starting_idx:ending_idx]
 
         # plot sparse index portfolio vs index returns
         _, ax = plt.subplots()
