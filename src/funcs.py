@@ -8,10 +8,12 @@ pandas2ri.activate()
 
 # python packages
 import numpy as np
+import pandas as pd
 import yfinance as yf
 from pandas_datareader import data as pdr
 import riskparityportfolio as rp
 import datetime as dt
+import itertools
 
 yf.pdr_override()
 utils = rpackages.importr("utils")
@@ -74,3 +76,109 @@ def design_sparse(X_train, r_train, l=1e-7, u=0.5, measure="ete"):
 
     # design sparse portfolio
     return spIndexTrack.spIndexTrack(X_train, r_train, l, u, measure)
+
+
+def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=None):
+    """backtest portfolio returns with weights"""
+    # create dictionary
+    portfolio_returns = dict()
+    portfolio_returns[portfolio_name] = (
+        np.array(
+            (
+                1
+                + np.dot(
+                    t_portfolio_returns.to_numpy().reshape((-1, len(weights))),
+                    np.matrix(weights).reshape((-1, 1)),
+                )
+            ).cumprod()
+        )
+        .flatten()
+        .tolist()
+    )
+
+    # add index
+    portfolio_returns = pd.DataFrame(portfolio_returns, index=t_portfolio_returns.index)
+
+    if PLOT:
+        portfolio_returns.plot.line(figsize=(20, 6), ylabel="Return", ax=ax)
+
+    return portfolio_returns
+
+
+def build_sparse(
+    ticker_index, tickers_portfolio, t_all_returns, t_index_returns, end_train
+):
+    # get all combinations of n tickers
+    num_tickers = 3
+    tickers_comb = list(itertools.combinations(tickers_portfolio, num_tickers))
+    c = ["ticker" + "_" + str(idx) for idx in range(num_tickers)]
+    c = c + ["weight" + "_" + str(idx) for idx in range(num_tickers)]
+    c = c + ["crmse"]
+    crmse_df = pd.DataFrame(columns=c)
+
+    for comb_idx, comb in enumerate(tickers_comb):
+        print("Combination %d/%d: %s" % (comb_idx + 1, len(tickers_comb), comb))
+        # get comb ticker data
+        t_portfolio_returns = t_all_returns.loc[:, comb]
+
+        # ensure the same index
+        starting_idx = max(t_portfolio_returns.index[0], t_index_returns.index[0])
+        ending_idx = min(t_portfolio_returns.index[-1], t_index_returns.index[-1])
+        t_index_returns = t_index_returns.loc[starting_idx:ending_idx]
+        t_portfolio_returns = t_portfolio_returns.loc[starting_idx:ending_idx]
+
+        try:
+            # design sparse portfolio
+            w_sparse = design_sparse(
+                X_train=t_portfolio_returns.loc[:end_train],
+                r_train=t_index_returns.loc[:end_train],
+                l=1e-9,
+                u=0.5,
+                measure="ete",
+            )
+
+            # get dataframe with cumulative returns for all the data
+            sparse_portfolio = backtest_portfolio(
+                t_portfolio_returns=t_portfolio_returns,
+                weights=w_sparse,
+                portfolio_name="sparse_" + ticker_index[0],
+                PLOT=False,
+            )
+            sparse_index = backtest_portfolio(
+                t_portfolio_returns=t_index_returns,
+                weights=np.array([1.0]),
+                portfolio_name=ticker_index[0],
+                PLOT=False,
+            )
+
+            # get crmse
+            crmse = np.sqrt(
+                np.sum(
+                    np.square(
+                        sparse_portfolio["sparse_" + ticker_index[0]]
+                        - sparse_index[ticker_index[0]]
+                    )
+                )
+            )
+
+            # add to results only if
+            if crmse < 3.0:
+                # get tracking error dictionary
+                crmse_d = dict()
+                for idx in range(num_tickers):
+                    crmse_d["ticker_" + str(idx)] = comb[idx]
+                    crmse_d["weight_" + str(idx)] = w_sparse[idx]
+
+                crmse_d["crmse"] = crmse
+
+                # add to crmse dataframe
+                crmse_df = pd.concat(
+                    (crmse_df, pd.DataFrame(crmse_d, index=[0])), ignore_index=True
+                )
+            else:
+                print("Skipping because CRMSE is too high: %.2f\n" % (crmse))
+
+        except:
+            pass
+
+    return crmse_df

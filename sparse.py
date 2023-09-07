@@ -2,123 +2,80 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
-import itertools
 import matplotlib.pyplot as plt
-from src.funcs import get_t, design_sparse
-
-PLOT = False
+from src.funcs import get_t, backtest_portfolio, build_sparse
 
 
-def sparse(ticker_index):
-    # choose tickers
+if __name__ == "__main__":
+    # get ticker names
+    ticker_index = ["RSP"]
     ticker_data = pd.read_json("ticker_data.json")
-    tickers_portfolio = ticker_data.loc[:, "tickers"]
-    tickers_portfolio = [
-        ticker for ticker in tickers_portfolio if ticker.startswith("V")
-    ]
-
-    # get all combinations of n tickers
-    num_tickers = 3
-    tickers_comb = list(itertools.combinations(tickers_portfolio, num_tickers))
-    c = ["ticker" + "_" + str(idx) for idx in range(num_tickers)]
-    c = c + ["weight" + "_" + str(idx) for idx in range(num_tickers)]
-    c = c + ["crmse"]
-    crmse_df = pd.DataFrame(columns=c)
+    tickers_portfolio = ticker_data.loc[0:5, "tickers"]
+    # tickers_portfolio = [
+    #     ticker for ticker in tickers_portfolio if ticker.startswith("V")
+    # ]
 
     # get all ticker data
     start_test = dt.datetime(year=2020, month=1, day=1)
     _, _, t_all_returns = get_t(tickers=tickers_portfolio, start=start_test)
     _, _, t_index_returns = get_t(tickers=ticker_index, start=start_test)
 
-    for comb_idx, comb in enumerate(tickers_comb):
-        print("Combination %d/%d: %s" % (comb_idx + 1, len(tickers_comb), comb))
-        # get comb ticker data
-        t_portfolio_returns = t_all_returns.loc[:, comb]
+    # train only for some data
+    end_train = dt.datetime(year=2022, month=12, day=31)
 
-        # ensure the same index
-        starting_idx = max(t_portfolio_returns.index[0], t_index_returns.index[0])
-        ending_idx = min(t_portfolio_returns.index[-1], t_index_returns.index[-1])
-        t_index_returns = t_index_returns.loc[starting_idx:ending_idx]
-        t_portfolio_returns = t_portfolio_returns.loc[starting_idx:ending_idx]
+    # build sparse portfolio
+    crmse_df = build_sparse(
+        ticker_index=ticker_index,
+        tickers_portfolio=tickers_portfolio,
+        t_all_returns=t_all_returns,
+        t_index_returns=t_index_returns,
+        end_train=end_train,
+    )
 
-        # train only until for some of the data
-        end_train = dt.datetime(year=2022, month=12, day=31)
+    # print and plot results
+    if not crmse_df.empty:
+        result_df = crmse_df.iloc[crmse_df["crmse"].idxmin(), :]
 
-        try:
-            # design sparse portfolio
-            w_sparse = design_sparse(
-                t_portfolio_returns.loc[:end_train],
-                t_index_returns.loc[:end_train],
-                l=1e-9,
-                u=0.5,
-                measure="ete",
-            )
+        # get sparse portfolio tickers and weights
+        tickers_results = [
+            result_df[ticker]
+            for ticker in result_df.index
+            if ticker.startswith("ticker_")
+        ]
+        weights_results = [
+            result_df[weight]
+            for weight in result_df.index
+            if weight.startswith("weight_")
+        ]
 
-            # get dataframe with cumulative returns for all the data
-            sparse_portfolio = dict()
-            sparse_portfolio["sparse_" + ticker_index[0] + ":" + str(comb)] = (
-                np.array(
-                    (
-                        1
-                        + (
-                            t_portfolio_returns.to_numpy()
-                            * np.matrix(w_sparse).transpose()
-                        )
-                    ).cumprod()
-                )
-                .flatten()
-                .tolist()
-            )
-            sparse_portfolio[ticker_index[0]] = (
-                (1 + t_index_returns.to_numpy()).cumprod().tolist()
-            )
-            sparse_portfolio = pd.DataFrame(
-                sparse_portfolio, index=t_portfolio_returns.index
-            )
+        # get returns of results again
+        returns_results = t_all_returns.loc[:, tickers_results]
 
-            # get crmse
-            crmse = np.sqrt(
-                np.sum(
-                    np.square(
-                        sparse_portfolio["sparse_" + ticker_index[0] + ":" + str(comb)]
-                        - sparse_portfolio[ticker_index[0]]
-                    )
-                )
-            )
+        # plot sparse index portfolio vs index returns
+        _, ax = plt.subplots()
+        _ = backtest_portfolio(
+            t_portfolio_returns=returns_results,
+            weights=weights_results,
+            portfolio_name="sparse_" + ticker_index[0],
+            PLOT=True,
+            ax=ax,
+        )
+        _ = backtest_portfolio(
+            t_portfolio_returns=t_index_returns,
+            weights=np.array([1.0]),
+            portfolio_name=ticker_index[0],
+            PLOT=True,
+            ax=ax,
+        )
+        plt.axvline(x=end_train)
+        plt.show()
 
-            # add to results only if
-            if crmse < 3.0:
-                # get tracking error dictionary
-                crmse_d = dict()
-                for idx in range(num_tickers):
-                    crmse_d["ticker_" + str(idx)] = comb[idx]
-                    crmse_d["weight_" + str(idx)] = w_sparse[idx]
+        # print all results
+        print(crmse_df.to_string())
 
-                crmse_d["crmse"] = crmse
+        # print final results
+        print(result_df.to_string())
+        print("Index = %s" % ticker_index)
 
-                # add to crmse dataframe
-                crmse_df = pd.concat(
-                    (crmse_df, pd.DataFrame(crmse_d, index=[0])), ignore_index=True
-                )
-
-                # plot sparse index portfolio vs index returns
-                if PLOT:
-                    sparse_portfolio.plot.line(figsize=(20, 6), ylabel="Return")
-                    plt.axvline(x=end_train)
-
-                    plt.show()
-        except:
-            pass
-
-    return crmse_df
-
-
-if __name__ == "__main__":
-    ticker_index = ["RSP"]
-    crmse_df = sparse(ticker_index=ticker_index)
-
-    # print final results
-    print(crmse_df.to_string())
-
-    # print the weights with the minimimum crmse
-    print(crmse_df.iloc[crmse_df["crmse"].idxmin(), :].to_string())
+    else:
+        print("No good portfolios found")
