@@ -8,12 +8,13 @@ from src.funcs import get_t, backtest_portfolio, build_sparse
 
 if __name__ == "__main__":
     # get ticker names
-    ticker_index = ["^NSEI"]
+    ticker_index = ["^SPXEW"]
     ticker_data = pd.read_json("ticker_data.json")
     tickers_portfolio = ticker_data.loc[0:, "tickers"]
     tickers_portfolio = [
         ticker for ticker in tickers_portfolio if ticker.startswith("V")
     ]
+    num_tickers = 3
 
     # get all ticker data
     start_test = dt.datetime(year=2020, month=1, day=1)
@@ -27,6 +28,7 @@ if __name__ == "__main__":
     crmse_df = build_sparse(
         ticker_index=ticker_index,
         tickers_portfolio=tickers_portfolio,
+        num_tickers=num_tickers,
         t_all_returns=t_all_returns,
         t_index_returns=t_index_returns,
         end_train=end_train,
@@ -77,12 +79,10 @@ if __name__ == "__main__":
         plt.axvline(x=end_train)
         plt.show()
 
-        # print all results
-        print(crmse_df.to_string())
-
         # print final results
         print(result_df.to_string())
         print("Index = %s" % ticker_index)
+        print(returns_results.tail().tail())
 
     else:
         print("No good portfolios found")

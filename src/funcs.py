@@ -108,12 +108,12 @@ def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=No
 def build_sparse(
     ticker_index,
     tickers_portfolio,
+    num_tickers,
     t_all_returns,
     t_index_returns,
     end_train,
 ):
     # get all combinations of n tickers
-    num_tickers = 3
     tickers_comb = list(itertools.combinations(tickers_portfolio, num_tickers))
     c = ["ticker" + "_" + str(idx) for idx in range(num_tickers)]
     c = c + ["weight" + "_" + str(idx) for idx in range(num_tickers)]
@@ -137,7 +137,7 @@ def build_sparse(
                 X_train=t_portfolio_returns.loc[:end_train],
                 r_train=t_index_returns.loc[:end_train],
                 l=1e-9,
-                u=0.5,
+                u=0.9,
                 measure="ete",
             )
 

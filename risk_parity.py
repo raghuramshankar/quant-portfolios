@@ -6,7 +6,11 @@ from src.funcs import get_t, fit_mvt, construct_rbp
 
 if __name__ == "__main__":
     # choose tickers
-    tickers = ["XRSG.L", "SPXP.L", "IWDG.L", "G500.L", "SWLD.L", "EQGB.L"]
+    tickers = [
+        "CSH2.L",
+        "LGGG.L",
+        "UC15.L",
+    ]
 
     # get ticker data
     t_names, t_prices, t_returns = get_t(tickers=tickers)
@@ -24,7 +28,7 @@ if __name__ == "__main__":
     weights_parity.plot.pie(autopct="%1.1f%%", ax=ax)
 
     # construct risk budgeting portfolio
-    risk_1 = 0.5
+    risk_1 = 1e-5
     sort_indices = np.argsort(tickers)
     b = np.vstack(
         [risk_1, np.ones((len(tickers) - 1, 1)) * (1 - risk_1) / (len(tickers) - 1)]
