@@ -28,11 +28,8 @@ if __name__ == "__main__":
     weights_parity.plot.pie(autopct="%1.1f%%", ax=ax)
 
     # construct risk budgeting portfolio
-    risk_1 = 0.2
+    b = np.array((0.5, 0.4, 0.1)).reshape((-1, 1))
     sort_indices = np.argsort(tickers)
-    b = np.vstack(
-        [risk_1, np.ones((len(tickers) - 1, 1)) * (1 - risk_1) / (len(tickers) - 1)]
-    )
     b = b[sort_indices]
     weights_budget = pd.Series(construct_rbp(results["cov"], b), index=t_names).T
 
@@ -49,7 +46,15 @@ if __name__ == "__main__":
     )
 
     # add portfolio backtest
-    returns_df["Portfolio"] = (
+    returns_df["Parity Portfolio"] = (
+        (
+            (1 + t_returns.to_numpy())
+            * np.matrix(weights_parity.to_numpy().reshape((-1, 1)))
+        )
+        .cumprod()
+        .transpose()
+    )
+    returns_df["Budget Portfolio"] = (
         (
             (1 + t_returns.to_numpy())
             * np.matrix(weights_budget.to_numpy().reshape((-1, 1)))
@@ -59,4 +64,5 @@ if __name__ == "__main__":
     )
 
     # plot returns_df
-    returns_df.plot.line()
+    _, ax = plt.subplots(figsize=(12, 6))
+    returns_df.plot.line(ax=ax)
