@@ -1,5 +1,4 @@
-
-# Risk Parity Portfolios
+# Quant Portfolios
 
 - Uses [Prof. Daniel P. Palomar](https://github.com/dppalomar) and the [Convex Research](https://github.com/convexfi) group's quantitative tools to model stocks, construct and backtest risk parity/budgeting portfolios.
 
