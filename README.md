@@ -8,7 +8,8 @@
 - Selects list of tickers to model and construct a portfolio using factor based models (TBD)
 - Fits Multivariate Student's t distribution to a list of stocks using [fitHeavyTail](https://github.com/convexfi/fitHeavyTail)
 - Constructs a risk parity/budgeting portfolio using [riskParity.py](https://github.com/convexfi/riskparity.py)
-- Backtests returns of constructed portfolios using [portfolioBacktest](https://github.com/dppalomar/portfolioBacktest)
+- Constructs sparse portfolio using [sparseIndexTracking](https://github.com/dppalomar/sparseIndexTracking)
+- Backtests returns of constructed portfolios (TBD)
 
 ## Requirements:
 
