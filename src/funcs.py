@@ -33,7 +33,8 @@ def get_t(
 ):
     """get ticker data"""
     tickers = sorted(tickers)
-    t_names = [ticker + ": " + yf.Ticker(ticker).info["longName"] for ticker in tickers]
+    # t_names = [ticker + ": " + yf.Ticker(ticker).info["longName"] for ticker in tickers]
+    t_names = tickers
     t_prices = pdr.get_data_yahoo(tickers, start, end, progress=True)["Close"]
     t_returns = t_prices.resample("D").ffill().pct_change().dropna(axis=0)
 

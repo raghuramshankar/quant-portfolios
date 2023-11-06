@@ -7,7 +7,7 @@ from src.funcs import get_t, fit_mvt, construct_rbp
 if __name__ == "__main__":
     # choose tickers
     tickers = [
-        "CSH2.L",
+        "XRSG.L",
         "LGGG.L",
         "UC15.L",
     ]
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     weights_parity.plot.pie(autopct="%1.1f%%", ax=ax)
 
     # construct risk budgeting portfolio
-    risk_1 = 1e-5
+    risk_1 = 0.2
     sort_indices = np.argsort(tickers)
     b = np.vstack(
         [risk_1, np.ones((len(tickers) - 1, 1)) * (1 - risk_1) / (len(tickers) - 1)]
@@ -41,17 +41,22 @@ if __name__ == "__main__":
     _, ax = plt.subplots(figsize=(12, 6))
     weights_budget.plot.pie(autopct="%1.1f%%", ax=ax)
 
-    # plot t_returns
-    _, ax = plt.subplots(figsize=(12, 6))
-    pd.DataFrame(
-        (1 + t_returns.to_numpy().transpose()).cumprod().transpose(),
+    # get returns_df
+    returns_df = pd.DataFrame(
+        (1 + t_returns.to_numpy().transpose()).cumprod(axis=1).transpose(),
         index=t_returns.index,
-    ).plot.line(ax=ax)
+        columns=t_names,
+    )
 
-    # plot backtest
-    _, ax = plt.subplots(figsize=(12, 6))
-    pd.DataFrame(
-        (1 + t_returns.to_numpy() * np.matrix(weights_budget.to_numpy()).transpose())
+    # add portfolio backtest
+    returns_df["Portfolio"] = (
+        (
+            (1 + t_returns.to_numpy())
+            * np.matrix(weights_budget.to_numpy().reshape((-1, 1)))
+        )
         .cumprod()
         .transpose()
-    ).plot.line(ax=ax)
+    )
+
+    # plot returns_df
+    returns_df.plot.line()
