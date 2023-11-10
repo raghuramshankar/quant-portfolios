@@ -8,7 +8,7 @@ from src.funcs import get_t, backtest_portfolio, build_sparse
 
 if __name__ == "__main__":
     # get ticker names
-    ticker_index = ["^SPXEW"]
+    ticker_index = ["^NDXE"]
     ticker_data = pd.read_json("ticker_data.json")
     tickers_portfolio = ticker_data.loc[0:, "tickers"]
     tickers_portfolio = [
@@ -50,6 +50,15 @@ if __name__ == "__main__":
             for weight in result_df.index
             if weight.startswith("weight_")
         ]
+        ters_results = ticker_data[ticker_data["tickers"].isin(tickers_results)][
+            "ters"
+        ].to_numpy()
+        overall_ter = np.dot(
+            ticker_data[ticker_data["tickers"].isin(tickers_results)]["ters"]
+            .to_numpy()
+            .reshape((1, -1)),
+            np.matrix(weights_results).reshape((-1, 1)),
+        ).tolist()[0][0]
 
         # get returns of results again
         returns_results = t_all_returns.loc[:, tickers_results]
@@ -82,7 +91,8 @@ if __name__ == "__main__":
         # print final results
         print(result_df.to_string())
         print("Index = %s" % ticker_index)
-        print(returns_results.tail().tail())
+        print(returns_results.tail())
+        print("Overall TER = %f" % overall_ter)
 
     else:
         print("No good portfolios found")
