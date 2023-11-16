@@ -2,15 +2,17 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import datetime as dt
 from src.funcs import get_t, fit_mvt, construct_rbp
 
 if __name__ == "__main__":
     # choose tickers
-    tickers = ["XRSG.L", "IWDG.L", "UC15.L"]
-    # tickers = ["XRSG.L", "IWDG.L"]
+    tickers = ["VUSA.L", "FRXE.L", "UC90.L"]
 
     # get ticker data
-    t_names, t_prices, t_returns = get_t(tickers=tickers)
+    t_names, t_prices, t_returns = get_t(
+        tickers=tickers, start=dt.datetime.now() - dt.timedelta(days=365 * 10)
+    )
 
     # get mean and covar
     mvt_results = fit_mvt(t_returns)
@@ -24,7 +26,7 @@ if __name__ == "__main__":
     weights_parity.plot.pie(autopct="%1.1f%%", ax=ax, title="Parity Portfolio")
 
     # construct risk budgeting portfolio
-    b = np.array((0.8, 0.1, 0.1)).reshape((-1, 1))
+    b = np.array((0.6, 0.2, 0.2)).reshape((-1, 1))
     sort_indices = np.argsort(tickers)
     b = b[sort_indices]
     weights_budget = pd.Series(construct_rbp(mvt_results["cov"], b), index=t_names).T

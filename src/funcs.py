@@ -101,7 +101,7 @@ def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=No
     portfolio_returns = pd.DataFrame(portfolio_returns, index=t_portfolio_returns.index)
 
     if PLOT:
-        portfolio_returns.plot.line(figsize=(20, 6), ylabel="Return", ax=ax)
+        portfolio_returns.plot.line(figsize=(12, 6), ylabel="Return", ax=ax)
 
     return portfolio_returns
 

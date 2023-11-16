@@ -8,7 +8,7 @@ from src.funcs import get_t, backtest_portfolio, build_sparse
 
 if __name__ == "__main__":
     # get ticker names
-    ticker_index = ["^NDXE"]
+    ticker_index = ["^SPXEW"]
     ticker_data = pd.read_json("ticker_data.json")
     tickers_portfolio = ticker_data.loc[0:, "tickers"]
     tickers_portfolio = [
