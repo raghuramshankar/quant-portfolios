@@ -3,12 +3,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime as dt
-from src.funcs import get_t, fit_mvt, construct_rbp, backtest_portfolio
+from src.funcs import get_t, fit_mvt, construct_rbp, backtest_portfolio, plot_weights
 
-if __name__ == "__main__":
-    # choose tickers
-    tickers = ["VUSA.L", "FRXE.L", "UC90.L"]
 
+def risk_parity(tickers):
     # get ticker data
     t_names, t_prices, t_returns = get_t(
         tickers=tickers, start=dt.datetime.now() - dt.timedelta(days=365 * 10)
@@ -22,8 +20,8 @@ if __name__ == "__main__":
     weights_parity = pd.Series(construct_rbp(mvt_results["cov"], b), index=t_names).T
 
     # visualize weights
-    _, ax = plt.subplots(figsize=(12, 6))
-    weights_parity.plot.pie(autopct="%1.1f%%", ax=ax, title="Parity Portfolio")
+    _, ax = plt.subplots(1, 3, figsize=(12, 6))
+    plot_weights(weights=weights_parity, title="Parity Portfolio", ax=ax[0])
 
     # construct risk budgeting portfolio
     b = np.array((0.6, 0.2, 0.2)).reshape((-1, 1))
@@ -32,23 +30,14 @@ if __name__ == "__main__":
     weights_budget = pd.Series(construct_rbp(mvt_results["cov"], b), index=t_names).T
 
     # visualize weights
-    _, ax = plt.subplots(figsize=(12, 6))
-    weights_budget.plot.pie(autopct="%1.1f%%", ax=ax, title="Budget Portfolio")
+    plot_weights(weights=weights_budget, title="Budget Portfolio", ax=ax[1])
 
     # construct equal weight portfolio
     b = (np.ones((1, len(tickers))) * 1 / len(tickers)).flatten()
     weights_equal = pd.Series(b, index=t_names).T
 
     # visualize weights
-    _, ax = plt.subplots(figsize=(12, 6))
-    weights_equal.plot.pie(autopct="%1.1f%%", ax=ax, title="Equal Weight Portfolio")
-
-    # get portfolio returns df
-    portfolio_returns = pd.DataFrame(
-        (t_returns.to_numpy()),
-        index=t_returns.index,
-        columns=t_names,
-    )
+    plot_weights(weights=weights_equal, title="Equal Weight Portfolio", ax=ax[2])
 
     # backtest portofolio performance
     _, ax = plt.subplots(figsize=(12, 6))
@@ -83,3 +72,9 @@ if __name__ == "__main__":
             PLOT=True,
             ax=ax,
         )
+
+
+if __name__ == "__main__":
+    # choose tickers
+    tickers = ["VUSA.L", "FRXE.L", "UC90.L"]
+    risk_parity(tickers)

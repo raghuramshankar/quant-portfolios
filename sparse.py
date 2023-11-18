@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import matplotlib.pyplot as plt
-from src.funcs import get_t, backtest_portfolio, build_sparse
+from src.funcs import get_t, backtest_portfolio, build_sparse, plot_weights
 
 
 if __name__ == "__main__":
@@ -40,28 +40,33 @@ if __name__ == "__main__":
         result_df = crmse_df.iloc[crmse_df["crmse"].idxmin(), :]
 
         # get sparse portfolio tickers and weights
-        tickers_results = [
+        result_tickers = [
             result_df[ticker]
             for ticker in result_df.index
             if ticker.startswith("ticker_")
         ]
-        weights_results = [
+        result_weights = [
             result_df[weight]
             for weight in result_df.index
             if weight.startswith("weight_")
         ]
-        ters_results = ticker_data[ticker_data["tickers"].isin(tickers_results)][
+        weights_sparse = pd.Series(
+            {result_tickers[i]: result_weights[i] for i in range(len(result_tickers))}
+        )
+
+        # get total expense ratio
+        ters_results = ticker_data[ticker_data["tickers"].isin(result_tickers)][
             "ters"
         ].to_numpy()
         overall_ter = np.dot(
-            ticker_data[ticker_data["tickers"].isin(tickers_results)]["ters"]
+            ticker_data[ticker_data["tickers"].isin(result_tickers)]["ters"]
             .to_numpy()
             .reshape((1, -1)),
-            np.matrix(weights_results).reshape((-1, 1)),
+            np.matrix(result_weights).reshape((-1, 1)),
         ).tolist()[0][0]
 
         # get returns of results again
-        returns_results = t_all_returns.loc[:, tickers_results]
+        returns_results = t_all_returns.loc[:, result_tickers]
 
         # ensure the same index
         starting_idx = max(returns_results.index[0], t_index_returns.index[0])
@@ -69,11 +74,19 @@ if __name__ == "__main__":
         t_index_returns = t_index_returns.loc[starting_idx:ending_idx]
         returns_results = returns_results.loc[starting_idx:ending_idx]
 
+        # visualize weights
+        _, ax = plt.subplots(figsize=(12, 6))
+        plot_weights(
+            weights=weights_sparse,
+            title="Index = %s, Overall TER = %f" % (ticker_index[0], overall_ter),
+            ax=ax,
+        )
+
         # plot sparse index portfolio vs index returns
-        _, ax = plt.subplots()
+        _, ax = plt.subplots(figsize=(12, 6))
         _ = backtest_portfolio(
             t_portfolio_returns=returns_results,
-            weights=weights_results,
+            weights=result_weights,
             portfolio_name="sparse_" + ticker_index[0],
             PLOT=True,
             ax=ax,
@@ -85,14 +98,7 @@ if __name__ == "__main__":
             PLOT=True,
             ax=ax,
         )
-        plt.axvline(x=end_train)
-        plt.show()
-
-        # print final results
-        print(result_df.to_string())
-        print("Index = %s" % ticker_index)
-        print(returns_results.tail())
-        print("Overall TER = %f" % overall_ter)
+        ax.axvline(x=end_train)
 
     else:
         print("No good portfolios found")

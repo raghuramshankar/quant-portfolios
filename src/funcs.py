@@ -183,3 +183,7 @@ def build_sparse(
             pass
 
     return crmse_df
+
+
+def plot_weights(weights, title, ax):
+    weights.plot.pie(autopct="%1.1f%%", ax=ax, title=title)
