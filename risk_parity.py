@@ -39,6 +39,11 @@ def risk_parity(tickers):
     # visualize weights
     plot_weights(weights=weights_equal, title="Equal Weight Portfolio", ax=ax[2])
 
+    # save pie plot
+    plt.savefig(
+        "outputs/risk_parity_weights__" + "_".join(tickers).replace(".", "_") + ".png"
+    )
+
     # backtest portofolio performance
     _, ax = plt.subplots(figsize=(12, 6))
     _ = backtest_portfolio(
@@ -73,8 +78,13 @@ def risk_parity(tickers):
             ax=ax,
         )
 
+    # save backtest
+    plt.savefig(
+        "outputs/risk_parity_backetest__" + "_".join(tickers).replace(".", "_") + ".png"
+    )
+
 
 if __name__ == "__main__":
     # choose tickers
     tickers = ["VUSA.L", "FRXE.L", "UC90.L"]
-    risk_parity(tickers)
+    risk_parity(tickers=tickers)

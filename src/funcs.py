@@ -102,6 +102,11 @@ def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=No
     return portfolio_returns
 
 
+def plot_weights(weights, title, ax):
+    """plot weights as pie chart"""
+    weights.plot.pie(autopct="%1.1f%%", ax=ax, title=title)
+
+
 def build_sparse(
     ticker_index,
     tickers_portfolio,
@@ -110,6 +115,7 @@ def build_sparse(
     t_index_returns,
     end_train,
 ):
+    """build sparse portfolio of index returns"""
     # get all combinations of n tickers
     tickers_comb = list(itertools.combinations(tickers_portfolio, num_tickers))
     c = ["ticker" + "_" + str(idx) for idx in range(num_tickers)]
@@ -183,7 +189,3 @@ def build_sparse(
             pass
 
     return crmse_df
-
-
-def plot_weights(weights, title, ax):
-    weights.plot.pie(autopct="%1.1f%%", ax=ax, title=title)

@@ -6,15 +6,13 @@ import matplotlib.pyplot as plt
 from src.funcs import get_t, backtest_portfolio, build_sparse, plot_weights
 
 
-if __name__ == "__main__":
+def sparse(ticker_index, num_tickers):
     # get ticker names
-    ticker_index = ["^SPXEW"]
     ticker_data = pd.read_json("ticker_data.json")
     tickers_portfolio = ticker_data.loc[0:, "tickers"]
     tickers_portfolio = [
         ticker for ticker in tickers_portfolio if ticker.startswith("V")
     ]
-    num_tickers = 2
 
     # get all ticker data
     start_test = dt.datetime(year=2020, month=1, day=1)
@@ -34,7 +32,6 @@ if __name__ == "__main__":
         end_train=end_train,
     )
 
-    # %%
     # print and plot results
     if not crmse_df.empty:
         result_df = crmse_df.iloc[crmse_df["crmse"].idxmin(), :]
@@ -55,9 +52,6 @@ if __name__ == "__main__":
         )
 
         # get total expense ratio
-        ters_results = ticker_data[ticker_data["tickers"].isin(result_tickers)][
-            "ters"
-        ].to_numpy()
         overall_ter = np.dot(
             ticker_data[ticker_data["tickers"].isin(result_tickers)]["ters"]
             .to_numpy()
@@ -82,6 +76,13 @@ if __name__ == "__main__":
             ax=ax,
         )
 
+        # save pie plot
+        plt.savefig(
+            "outputs/sparse_weights__"
+            + "_".join(ticker_index).replace(".", "_")
+            + ".png"
+        )
+
         # plot sparse index portfolio vs index returns
         _, ax = plt.subplots(figsize=(12, 6))
         _ = backtest_portfolio(
@@ -100,5 +101,18 @@ if __name__ == "__main__":
         )
         ax.axvline(x=end_train)
 
+        # save backtest
+        plt.savefig(
+            "outputs/sparse_backtest__"
+            + "_".join(ticker_index).replace(".", "_")
+            + ".png"
+        )
+
     else:
         print("No good portfolios found")
+
+
+if __name__ == "__main__":
+    ticker_index = ["^SPXEW"]
+    num_tickers = 2
+    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
