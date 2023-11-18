@@ -80,7 +80,7 @@ def risk_parity(tickers):
 
     # save backtest
     plt.savefig(
-        "outputs/risk_parity_backetest__" + "_".join(tickers).replace(".", "_") + ".png"
+        "outputs/risk_parity_backtest__" + "_".join(tickers).replace(".", "_") + ".png"
     )
 
 
