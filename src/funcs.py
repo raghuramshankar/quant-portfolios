@@ -35,7 +35,9 @@ def get_t(
     tickers = sorted(tickers)
     # t_names = [ticker + ": " + yf.Ticker(ticker).info["longName"] for ticker in tickers]
     t_names = tickers
-    t_prices = pdr.get_data_yahoo(tickers, start, end, progress=True)["Close"]
+    t_prices = pd.DataFrame(
+        pdr.get_data_yahoo(tickers, start, end, progress=True)["Close"]
+    )
     t_returns = t_prices.resample("D").ffill().pct_change().dropna(axis=0)
 
     return (t_names, t_prices, t_returns)
@@ -81,23 +83,17 @@ def design_sparse(X_train, r_train, l=1e-7, u=0.5, measure="ete"):
 
 def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=None):
     """backtest portfolio returns with weights"""
-    # create dictionary
     portfolio_returns = dict()
     portfolio_returns[portfolio_name] = (
-        np.array(
-            (
-                1
-                + np.dot(
-                    t_portfolio_returns.to_numpy().reshape((-1, len(weights))),
-                    np.matrix(weights).reshape((-1, 1)),
-                )
-            ).cumprod()
+        (
+            1
+            + np.array(
+                t_portfolio_returns.to_numpy() * np.matrix(weights).reshape((-1, 1))
+            )
         )
         .flatten()
-        .tolist()
+        .cumprod()
     )
-
-    # add index
     portfolio_returns = pd.DataFrame(portfolio_returns, index=t_portfolio_returns.index)
 
     if PLOT:

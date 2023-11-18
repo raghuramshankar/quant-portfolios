@@ -14,7 +14,7 @@ if __name__ == "__main__":
     tickers_portfolio = [
         ticker for ticker in tickers_portfolio if ticker.startswith("V")
     ]
-    num_tickers = 3
+    num_tickers = 2
 
     # get all ticker data
     start_test = dt.datetime(year=2020, month=1, day=1)
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         )
         _ = backtest_portfolio(
             t_portfolio_returns=t_index_returns,
-            weights=np.array([1.0]),
+            weights=[1.0],
             portfolio_name=ticker_index[0],
             PLOT=True,
             ax=ax,

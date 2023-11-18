@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime as dt
-from src.funcs import get_t, fit_mvt, construct_rbp
+from src.funcs import get_t, fit_mvt, construct_rbp, backtest_portfolio
 
 if __name__ == "__main__":
     # choose tickers
@@ -50,17 +50,36 @@ if __name__ == "__main__":
         columns=t_names,
     )
 
-    # add portfolio backtest
-    portfolio_returns["Parity Portfolio"] = (t_returns.to_numpy()) * np.matrix(
-        weights_parity.to_numpy().reshape((-1, 1))
+    # backtest portofolio performance
+    _, ax = plt.subplots(figsize=(12, 6))
+    _ = backtest_portfolio(
+        t_portfolio_returns=t_returns,
+        weights=weights_parity,
+        portfolio_name="Parity Portfolio",
+        PLOT=True,
+        ax=ax,
     )
-    portfolio_returns["Budget Portfolio"] = (t_returns.to_numpy()) * np.matrix(
-        weights_budget.to_numpy().reshape((-1, 1))
+    _ = backtest_portfolio(
+        t_portfolio_returns=t_returns,
+        weights=weights_budget,
+        portfolio_name="Budget Portfolio",
+        PLOT=True,
+        ax=ax,
     )
-    portfolio_returns["Equal Weight Portfolio"] = (t_returns.to_numpy()) * np.matrix(
-        weights_equal.to_numpy().reshape((-1, 1))
+    _ = backtest_portfolio(
+        t_portfolio_returns=t_returns,
+        weights=weights_equal,
+        portfolio_name="Equal Weight Portfolio",
+        PLOT=True,
+        ax=ax,
     )
 
-    # plot normalized backtest performance
-    _, ax = plt.subplots(figsize=(12, 6))
-    (1 + portfolio_returns).cumprod().plot.line(ax=ax)
+    # backtest asset performance
+    for asset in t_returns.columns:
+        _ = backtest_portfolio(
+            t_portfolio_returns=t_returns.loc[:, asset].to_frame(),
+            weights=[1.0],
+            portfolio_name=asset,
+            PLOT=True,
+            ax=ax,
+        )
