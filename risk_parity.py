@@ -85,6 +85,8 @@ def risk_parity(tickers):
 
 
 if __name__ == "__main__":
-    # choose tickers
     tickers = ["VUSA.L", "FRXE.L", "UC90.L"]
+    risk_parity(tickers=tickers)
+
+    tickers = ["IWDG.L", "FRXE.L", "UC90.L"]
     risk_parity(tickers=tickers)
