@@ -125,7 +125,7 @@ if __name__ == "__main__":
     num_tickers = 3
     sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
-    ticker_index = ["^INDA"]
+    ticker_index = ["INDA"]
     num_tickers = 3
     sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
