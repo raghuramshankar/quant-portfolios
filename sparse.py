@@ -140,3 +140,11 @@ if __name__ == "__main__":
     ticker_index = ["^SP1500"]
     num_tickers = 3
     sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+
+    ticker_index = ["^RUI"]
+    num_tickers = 3
+    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+
+    ticker_index = ["IWSZ.L"]
+    num_tickers = 3
+    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
