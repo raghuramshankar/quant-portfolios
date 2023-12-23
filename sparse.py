@@ -121,13 +121,13 @@ if __name__ == "__main__":
     num_tickers = 3
     sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
-    ticker_index = ["^NDXE"]
-    num_tickers = 3
-    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+    # ticker_index = ["^NDXE"]
+    # num_tickers = 3
+    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
-    ticker_index = ["INDA"]
-    num_tickers = 3
-    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+    # ticker_index = ["INDA"]
+    # num_tickers = 3
+    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
     ticker_index = ["URTH"]
     num_tickers = 3
@@ -137,14 +137,18 @@ if __name__ == "__main__":
     num_tickers = 3
     sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
-    ticker_index = ["^SP1500"]
-    num_tickers = 3
-    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+    # ticker_index = ["^SP1500"]
+    # num_tickers = 3
+    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
     ticker_index = ["^RUI"]
     num_tickers = 3
     sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
-    ticker_index = ["IWSZ.L"]
+    # ticker_index = ["IWSZ.L"]
+    # num_tickers = 3
+    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+
+    ticker_index = ["ARKK"]
     num_tickers = 3
     sparse(ticker_index=ticker_index, num_tickers=num_tickers)
