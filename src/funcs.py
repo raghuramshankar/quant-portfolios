@@ -31,7 +31,7 @@ def get_t(
     start=dt.datetime.now() - dt.timedelta(days=365 * 10),
     end=dt.datetime.now(),
 ):
-    """get ticker data"""
+    """get ticker price data"""
     tickers = sorted(tickers)
     # t_names = [ticker + ": " + yf.Ticker(ticker).info["longName"] for ticker in tickers]
     t_names = tickers
@@ -41,6 +41,22 @@ def get_t(
     t_returns = t_prices.resample("D").ffill().pct_change().dropna(axis=0)
 
     return (t_names, t_prices, t_returns)
+
+
+def get_t_fundamental(
+    tickers,
+):
+    """get ticker all data"""
+    t_data = pd.DataFrame({ticker: yf.Ticker(ticker).info for ticker in tickers})
+
+    return t_data
+
+
+def get_sp500_list():
+    """get list of tickers in S&P500 index"""
+    return pd.read_html("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")[0][
+        "Symbol"
+    ].tolist()
 
 
 def fit_mvt(t_returns):
