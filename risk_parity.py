@@ -24,7 +24,7 @@ def risk_parity(tickers):
     plot_weights(weights=weights_parity, title="Parity Portfolio", ax=ax[0])
 
     # construct risk budgeting portfolio
-    b = np.array((0.6, 0.2, 0.2)).reshape((-1, 1))
+    b = np.array((0.2, 1e-5, 0.6)).reshape((-1, 1))
     sort_indices = np.argsort(tickers)
     b = b[sort_indices]
     weights_budget = pd.Series(construct_rbp(mvt_results["cov"], b), index=t_names).T
@@ -85,8 +85,5 @@ def risk_parity(tickers):
 
 
 if __name__ == "__main__":
-    tickers = ["VUSA.L", "FRXE.L", "UC90.L"]
-    risk_parity(tickers=tickers)
-
-    tickers = ["IWDG.L", "FRXE.L", "UC90.L"]
+    tickers = ["VUSA,L", "CSH2.L", "UC90.L"]
     risk_parity(tickers=tickers)
