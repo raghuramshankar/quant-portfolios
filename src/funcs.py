@@ -37,7 +37,7 @@ def get_t(
     t_names = tickers
     t_prices = pd.DataFrame(
         pdr.get_data_yahoo(tickers, start, end, progress=True)["Close"]
-    )
+    ).dropna()
     t_returns = t_prices.resample("D").ffill().pct_change().dropna(axis=0)
 
     return (t_names, t_prices, t_returns)
@@ -99,8 +99,8 @@ def design_sparse(X_train, r_train, l=1e-7, u=0.5, measure="ete"):
 
 def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=None):
     """backtest portfolio returns with weights"""
-    portfolio_returns = dict()
-    portfolio_returns[portfolio_name] = (
+    portfolio_prices_normalized = dict()
+    portfolio_prices_normalized[portfolio_name] = (
         (
             1
             + np.array(
@@ -110,12 +110,14 @@ def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=No
         .flatten()
         .cumprod()
     )
-    portfolio_returns = pd.DataFrame(portfolio_returns, index=t_portfolio_returns.index)
+    portfolio_prices_normalized = pd.DataFrame(
+        portfolio_prices_normalized, index=t_portfolio_returns.index
+    )
 
     if PLOT:
-        portfolio_returns.plot.line(figsize=(12, 6), ylabel="Return", ax=ax)
+        portfolio_prices_normalized.plot.line(figsize=(12, 6), ylabel="Return", ax=ax)
 
-    return portfolio_returns
+    return portfolio_prices_normalized
 
 
 def plot_weights(weights, title, ax):
@@ -205,3 +207,26 @@ def build_sparse(
             pass
 
     return crmse_df
+
+
+def get_stats(t_prices: pd.Series):
+    stats = pd.DataFrame()
+    num_years = (t_prices.index[-1] - t_prices.index[0]).total_seconds() / (
+        60 * 60 * 24 * 252
+    )
+    stats["Annualized Returns [%]"] = pd.Series(
+        (
+            np.power(
+                t_prices.iloc[-1] / t_prices.iloc[0],
+                (1 / num_years),
+            )
+            - 1
+        )
+        * 100,
+    )
+    stats["Annualized Volatility [%]"] = pd.Series(
+        (t_prices.pct_change().std() * np.sqrt(252)) * 100
+    )
+    stats.index = [t_prices.name]
+
+    return stats
