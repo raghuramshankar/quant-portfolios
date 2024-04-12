@@ -115,7 +115,9 @@ def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=No
     )
 
     if PLOT:
-        portfolio_prices_normalized.plot.line(figsize=(12, 6), ylabel="Return", ax=ax)
+        portfolio_prices_normalized.plot.line(
+            figsize=(12, 6), ylabel="Normalized Portfolio Price", ax=ax
+        )
 
     return portfolio_prices_normalized
 

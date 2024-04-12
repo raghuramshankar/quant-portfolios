@@ -12,20 +12,20 @@ if "__ipython__":
 
 if __name__ == "__main__":
     # allocate weights
-    portfolio_name = "Three Fund Portfolio"
-    tickers = ["VUSA.L", "CSH2.L", "UC90.L"]
-    weights = pd.Series([0.7, 0.3, 0.0], index=tickers)
+    portfolio_name = "Portfolio"
+    tickers = ["XDPG.L", "CSH2.L", "UC90.L"]
+    weights = pd.Series([0.6, 0.2, 0.2], index=tickers)
     sort_indices = np.argsort(tickers)
     weights = weights[sort_indices]
 
     # get ticker data
     t_names, t_prices, t_returns = get_t(
-        tickers=tickers, start=dt.datetime.now() - dt.timedelta(days=365 * 10)
+        tickers=tickers, start=dt.datetime.now() - dt.timedelta(days=365 * 15)
     )
 
     # visualize weights
     _, ax = plt.subplots(1, 1, figsize=(3, 3))
-    plot_weights(weights=weights, title="Three Fund Portfolio", ax=ax)
+    plot_weights(weights=weights, title=portfolio_name, ax=ax)
 
     # backtest asset performance
     _, ax = plt.subplots(1, 1, figsize=(12, 9))
@@ -48,10 +48,11 @@ if __name__ == "__main__":
     )
 
     # tickers and portfolio stats
-    stats = get_stats(t_prices=t_prices.loc[:, "CSH2.L"])
-    stats = pd.concat((stats, get_stats(t_prices=t_prices.loc[:, "UC90.L"])), axis=0)
-    stats = pd.concat((stats, get_stats(t_prices=t_prices.loc[:, "VUSA.L"])), axis=0)
+    stats = pd.DataFrame()
+    for ticker in tickers:
+        stats = pd.concat((stats, get_stats(t_prices=t_prices.loc[:, ticker])), axis=0)
     stats = pd.concat(
         (stats, get_stats(t_prices=portfolio_prices_normalized.iloc[:, 0])), axis=0
     )
     print(stats.to_string())
+
