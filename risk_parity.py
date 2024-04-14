@@ -8,7 +8,7 @@ from src.funcs import get_t, fit_mvt, construct_rbp, backtest_portfolio, plot_we
 
 def risk_parity(tickers):
     # get ticker data
-    t_names, t_prices, t_returns = get_t(
+    (t_names, t_prices, t_returns, t_cum_returns) = get_t(
         tickers=tickers, start=dt.datetime.now() - dt.timedelta(days=365 * 10)
     )
 
@@ -47,21 +47,21 @@ def risk_parity(tickers):
     # backtest portofolio performance
     _, ax = plt.subplots(figsize=(12, 6))
     _ = backtest_portfolio(
-        t_portfolio_returns=t_returns,
+        t_returns=t_returns,
         weights=weights_parity,
         portfolio_name="Parity Portfolio",
         PLOT=True,
         ax=ax,
     )
     _ = backtest_portfolio(
-        t_portfolio_returns=t_returns,
+        t_returns=t_returns,
         weights=weights_budget,
         portfolio_name="Budget Portfolio",
         PLOT=True,
         ax=ax,
     )
     _ = backtest_portfolio(
-        t_portfolio_returns=t_returns,
+        t_returns=t_returns,
         weights=weights_equal,
         portfolio_name="Equal Weight Portfolio",
         PLOT=True,
@@ -71,7 +71,7 @@ def risk_parity(tickers):
     # backtest asset performance
     for asset in t_returns.columns:
         _ = backtest_portfolio(
-            t_portfolio_returns=t_returns.loc[:, asset].to_frame(),
+            t_returns=t_returns.loc[:, asset].to_frame(),
             weights=[1.0],
             portfolio_name=asset,
             PLOT=True,
@@ -85,5 +85,5 @@ def risk_parity(tickers):
 
 
 if __name__ == "__main__":
-    tickers = ["VUSA,L", "CSH2.L", "UC90.L"]
+    tickers = ["VUSA.L", "CSH2.L", "UC90.L"]
     risk_parity(tickers=tickers)

@@ -39,8 +39,9 @@ def get_t(
         pdr.get_data_yahoo(tickers, start, end, progress=True)["Close"]
     ).dropna()
     t_returns = t_prices.resample("D").ffill().pct_change().dropna(axis=0)
+    t_cum_returns = (1 + t_returns).cumprod()
 
-    return (t_names, t_prices, t_returns)
+    return (t_names, t_prices, t_returns, t_cum_returns)
 
 
 def get_t_fundamental(
@@ -97,36 +98,6 @@ def design_sparse(X_train, r_train, l=1e-7, u=0.5, measure="ete"):
     return spIndexTrack.spIndexTrack(X_train, r_train, l, u, measure)
 
 
-def backtest_portfolio(t_portfolio_returns, weights, portfolio_name, PLOT, ax=None):
-    """backtest portfolio returns with weights"""
-    portfolio_prices_normalized = dict()
-    portfolio_prices_normalized[portfolio_name] = (
-        (
-            1
-            + np.array(
-                t_portfolio_returns.to_numpy() * np.matrix(weights).reshape((-1, 1))
-            )
-        )
-        .flatten()
-        .cumprod()
-    )
-    portfolio_prices_normalized = pd.DataFrame(
-        portfolio_prices_normalized, index=t_portfolio_returns.index
-    )
-
-    if PLOT:
-        portfolio_prices_normalized.plot.line(
-            figsize=(12, 6), ylabel="Portfolio Cumulative Return", ax=ax
-        )
-
-    return portfolio_prices_normalized
-
-
-def plot_weights(weights, title, ax):
-    """plot weights as pie chart"""
-    weights.plot.pie(autopct="%1.1f%%", ax=ax, title=title)
-
-
 def build_sparse(
     ticker_index,
     tickers_portfolio,
@@ -166,13 +137,13 @@ def build_sparse(
 
             # get dataframe with cumulative returns for all the data
             sparse_portfolio = backtest_portfolio(
-                t_portfolio_returns=t_portfolio_returns,
+                t_returns=t_portfolio_returns,
                 weights=w_sparse,
                 portfolio_name="sparse_" + ticker_index[0],
                 PLOT=False,
             )
             sparse_index = backtest_portfolio(
-                t_portfolio_returns=t_index_returns,
+                t_returns=t_index_returns,
                 weights=np.array([1.0]),
                 portfolio_name=ticker_index[0],
                 PLOT=False,
@@ -211,6 +182,29 @@ def build_sparse(
     return crmse_df
 
 
+def plot_weights(weights, title, ax):
+    """plot weights as pie chart"""
+    weights.plot.pie(autopct="%1.1f%%", ax=ax, title=title)
+
+
+def backtest_portfolio(t_returns, weights, portfolio_name, PLOT, ax=None):
+    """backtest portfolio returns with fixed weights"""
+    portfolio_cum_return = dict()
+    portfolio_cum_return[portfolio_name] = (
+        (1 + np.array(t_returns.to_numpy() * np.matrix(weights).reshape((-1, 1))))
+        .flatten()
+        .cumprod()
+    )
+    portfolio_cum_return = pd.DataFrame(portfolio_cum_return, index=t_returns.index)
+
+    if PLOT:
+        portfolio_cum_return.plot.line(
+            figsize=(12, 6), ylabel="Cumulative Return", ax=ax
+        )
+
+    return portfolio_cum_return
+
+
 def get_stats(t_prices: pd.Series):
     stats = pd.DataFrame()
     num_years = (t_prices.index[-1] - t_prices.index[0]).total_seconds() / (
@@ -229,6 +223,7 @@ def get_stats(t_prices: pd.Series):
     stats["Annualized Volatility [%]"] = pd.Series(
         (t_prices.pct_change().std() * np.sqrt(252)) * 100
     )
+    stats["Max Drawdown [%]"] = (t_prices - t_prices.cummax()).min() * 100
     stats.index = [t_prices.name]
 
     return stats

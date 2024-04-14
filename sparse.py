@@ -16,11 +16,11 @@ def sparse(ticker_index, num_tickers):
 
     # get all ticker data
     start_test = dt.datetime(year=2020, month=1, day=1)
-    _, _, t_all_returns = get_t(tickers=tickers_portfolio, start=start_test)
-    _, _, t_index_returns = get_t(tickers=ticker_index, start=start_test)
+    (_, _, t_all_returns, _) = get_t(tickers=tickers_portfolio, start=start_test)
+    (_, _, t_index_returns, _) = get_t(tickers=ticker_index, start=start_test)
 
     # train only for some data
-    end_train = dt.datetime(year=2022, month=12, day=31)
+    end_train = dt.datetime(year=2023, month=12, day=31)
 
     # build sparse portfolio
     crmse_df = build_sparse(
@@ -86,14 +86,14 @@ def sparse(ticker_index, num_tickers):
         # plot sparse index portfolio vs index returns
         _, ax = plt.subplots(figsize=(12, 6))
         _ = backtest_portfolio(
-            t_portfolio_returns=returns_results,
+            t_returns=returns_results,
             weights=result_weights,
             portfolio_name="sparse_" + ticker_index[0],
             PLOT=True,
             ax=ax,
         )
         _ = backtest_portfolio(
-            t_portfolio_returns=t_index_returns,
+            t_returns=t_index_returns,
             weights=[1.0],
             portfolio_name=ticker_index[0],
             PLOT=True,
@@ -113,11 +113,15 @@ def sparse(ticker_index, num_tickers):
 
 
 if __name__ == "__main__":
-    ticker_index = ["^RUT"]
-    num_tickers = 3
-    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+    # ticker_index = ["^RUT"]
+    # num_tickers = 3
+    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
-    ticker_index = ["^SPXEW"]
+    # ticker_index = ["^SPXEW"]
+    # num_tickers = 3
+    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+
+    ticker_index = ["URTH"]
     num_tickers = 3
     sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
@@ -129,21 +133,17 @@ if __name__ == "__main__":
     # num_tickers = 3
     # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
-    ticker_index = ["URTH"]
-    num_tickers = 3
-    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
-
-    ticker_index = ["^RUA"]
-    num_tickers = 3
-    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+    # ticker_index = ["^RUA"]
+    # num_tickers = 3
+    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
     # ticker_index = ["^SP1500"]
     # num_tickers = 3
     # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
-    ticker_index = ["^RUI"]
-    num_tickers = 3
-    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+    # ticker_index = ["^RUI"]
+    # num_tickers = 3
+    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
     # ticker_index = ["IWSZ.L"]
     # num_tickers = 3
