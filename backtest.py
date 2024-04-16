@@ -14,7 +14,6 @@ if __name__ == "__main__":
     # allocate weights
     portfolio_name = "Portfolio"
     tickers = ["VUAG.L", "XRSG.L", "SGLN.L", "CSH2.L"]
-    # tickers = ["VOO", "XRSG.L", "SGLN.L", "CSH2.L"]
     weights = pd.Series([0.3, 0.15, 0.3, 0.25], index=tickers)
     sort_indices = np.argsort(tickers)
     weights = weights[sort_indices]

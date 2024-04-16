@@ -223,7 +223,9 @@ def get_stats(t_prices: pd.Series):
     stats["Annualized Volatility [%]"] = pd.Series(
         (t_prices.pct_change().std() * np.sqrt(252)) * 100
     )
-    stats["Max Drawdown [%]"] = (t_prices - t_prices.cummax()).min() * 100
+    stats["Max Drawdown [%]"] = (
+        (t_prices - t_prices.cummax()) / t_prices.cummax()
+    ).min() * 100
     stats.index = [t_prices.name]
 
     return stats
