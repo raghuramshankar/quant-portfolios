@@ -113,13 +113,13 @@ def sparse(ticker_index, num_tickers):
 
 
 if __name__ == "__main__":
-    # ticker_index = ["^RUT"]
-    # num_tickers = 3
-    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+    ticker_index = ["^RUT"]
+    num_tickers = 3
+    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
-    # ticker_index = ["^SPXEW"]
-    # num_tickers = 3
-    # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+    ticker_index = ["^SPXEW"]
+    num_tickers = 3
+    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
     ticker_index = ["URTH"]
     num_tickers = 3
