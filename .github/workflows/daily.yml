@@ -25,6 +25,7 @@ jobs:
     - name: run python scripts
       run: |
         python sparse.py
+        python backtest.py
     - name: commit outputs
       run: |
         git config --local user.name "GitHub Actions"
