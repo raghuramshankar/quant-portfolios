@@ -57,3 +57,9 @@ if __name__ == "__main__":
         (stats, get_stats(t_prices=portfolio_cum_return.iloc[:, 0])), axis=0
     )
     print(stats.to_string())
+
+    # save backtest
+    plt.savefig(
+        "outputs/all_weather_portfolio_backtest"
+        + ".png"
+    )
