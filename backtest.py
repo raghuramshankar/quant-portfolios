@@ -5,11 +5,6 @@ import matplotlib.pyplot as plt
 import datetime as dt
 from src.funcs import get_t, backtest_portfolio, plot_weights, get_stats
 
-if "__ipython__":
-    %load_ext autoreload
-    %autoreload 2
-    # %matplotlib widget
-
 if __name__ == "__main__":
     # allocate weights
     portfolio_name = "Portfolio"
