@@ -133,6 +133,10 @@ if __name__ == "__main__":
     num_tickers = 3
     sparse(ticker_index=ticker_index, num_tickers=num_tickers)
 
+    ticker_index = ["VBR"]
+    num_tickers = 3
+    sparse(ticker_index=ticker_index, num_tickers=num_tickers)
+
     # ticker_index = ["^NDXE"]
     # num_tickers = 3
     # sparse(ticker_index=ticker_index, num_tickers=num_tickers)
