@@ -1,8 +1,0 @@
-matplotlib==3.7.2
-numpy==1.25.1
-pandas==2.0.3
-pandas_datareader==0.10.0
-Requests==2.31.0
-riskparityportfolio==0.4
-rpy2==3.5.13
-yfinance==0.2.28
