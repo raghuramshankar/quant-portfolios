@@ -6,6 +6,7 @@ requires-python = ">=3.11, <3.12"
 [dependency-groups]
 default = [
     "ipykernel>=7.1.0",
+    "ipympl>=0.9.8",
     "matplotlib",
     "numpy",
     "pandas",

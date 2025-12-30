@@ -15,7 +15,20 @@ def get_t(
     t_prices = yf.download(tickers, start=start, end=end, progress=True)[
         "Close"
     ].dropna()
-    t_returns = t_prices.resample("D").ffill().pct_change().dropna(axis=0)
+
+    # remove erroneous prices
+    t_prices = t_prices[t_prices.pct_change() < 0.1].ffill()
+
+    # get daily returns
+    t_returns = (
+        t_prices[t_prices.pct_change() < 0.1]
+        .resample("D")
+        .ffill()
+        .pct_change()
+        .dropna(axis=0)
+    )
+
+    # get cumulative returns
     t_cum_returns = (1 + t_returns).cumprod()
 
     return (t_names, t_prices, t_returns, t_cum_returns)
@@ -54,7 +67,7 @@ def backtest_portfolio(t_returns, weights, portfolio_name, PLOT, ax=None):
 
     if PLOT:
         portfolio_cum_return.plot.line(
-            figsize=(12, 6), ylabel="Cumulative Return", ax=ax
+            ylabel="Cumulative Return", ax=ax, linewidth=2, figsize=(12, 9)
         )
 
     return portfolio_cum_return
